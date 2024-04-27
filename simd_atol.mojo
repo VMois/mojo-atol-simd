@@ -49,6 +49,11 @@ fn _combine_chunks[new_dtype: DType, old_dtype: DType, old_len: Int](value: SIMD
         var left_shifted = left_selected.shift_left[1]()
         alias multiplier = SIMD[old_dtype, old_len](10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0)
         right_multiplied = right_selected * multiplier
+
+        #print("16 size, left selected", left_selected)
+        #print("16 size, right selected", right_selected)
+        #print("16 size, right multipled", right_multiplied)
+        #print("16 size, left shifted", left_shifted)
         return bitcast[new_dtype, old_len // 2](left_shifted + right_multiplied)
     elif old_len == 8:
         alias even_mask = SIMD[old_dtype, old_len](0, 0x00ff, 0, 0x00ff, 0, 0x00ff, 0, 0x00ff)
@@ -58,9 +63,10 @@ fn _combine_chunks[new_dtype: DType, old_dtype: DType, old_len: Int](value: SIMD
         var left_shifted = left_selected.shift_left[1]()
         alias multiplier = SIMD[old_dtype, old_len](100, 0, 100, 0, 100, 0, 100, 0)
         right_multiplied = right_selected * multiplier
-        #print("left shifted", left_shifted)
-        #print("left selected", left_selected)
-        #print("right selected", right_selected)
+        #print("8 size, left selected", left_selected)
+        #print("8 size, right selected", right_selected)
+        #print("8 size, right multipled", right_multiplied)
+        #print("8 size, left shifted", left_shifted)
         return bitcast[new_dtype, old_len // 2](left_shifted + right_multiplied)
     elif old_len == 4:
         alias even_mask = SIMD[old_dtype, old_len](0, 0xffff, 0, 0xffff)
@@ -70,9 +76,10 @@ fn _combine_chunks[new_dtype: DType, old_dtype: DType, old_len: Int](value: SIMD
         var left_shifted = left_selected.shift_left[1]()
         alias multiplier = SIMD[old_dtype, old_len](10000, 0, 10000, 0)
         right_multiplied = right_selected * multiplier
-        #print("left shifted", left_shifted)
-        #print("left selected", left_selected)
-        #print("right selected", right_selected)
+        #print("4 size, left selected", left_selected)
+        #print("4 size, right selected", right_selected)
+        #print("4 size, right multipled", right_multiplied)
+        #print("4 size, left shifted", left_shifted)
         return bitcast[new_dtype, old_len // 2](left_shifted + right_multiplied)
     elif old_len == 2:
         return (value[0] * 100000000 + value[1]).cast[new_dtype]()
