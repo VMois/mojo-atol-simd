@@ -87,16 +87,17 @@ fn _combine_chunks[new_dtype: DType, old_dtype: DType, old_len: Int](value: SIMD
         raise Error("Unsupported length")
 
 
-fn atol(s: String) raises -> Int:
+fn atol[validation: Bool = True](s: String) raises -> Int:
     """
     Convert String that consists of 16 or less characters into integer.
     """
+    @parameter
+    if validation:
+        if len(s) == 0 or len(s) > 16:
+            raise Error("Only 16 or less Strings are supported.")
 
-    if len(s) == 0 or len(s) > 16:
-        raise Error("Only 16 or less Strings are supported.")
-
-    if not _is_uint(s):
-        raise Error("String is not convertible to integer.")
+        if not _is_uint(s):
+            raise Error("String is not convertible to integer.")
 
     #print("Original:", s)
     var zeros = SIMD[DType.uint8, simd_width](48)
