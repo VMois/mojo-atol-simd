@@ -107,10 +107,13 @@ fn atol[validation: Bool = True](s: String) raises -> Int:
     #print("Adjusted value", adjusted_value)
     var chunk16 = _combine_chunks[DType.uint16](adjusted_value)
     #print(chunk16)
+    
     var chunk32 = _combine_chunks[DType.uint32](chunk16)
     #print(chunk32)
+    
     var chunk32_2 = _combine_chunks[DType.uint64](chunk32)
     #print(chunk32_2)
+    
     var chunk32_3 = _combine_chunks[DType.uint64](chunk32_2)
     #print(chunk32_3)
 
