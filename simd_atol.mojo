@@ -100,8 +100,9 @@ fn atol[validation: Bool = True](s: String) raises -> Int:
             raise Error("String is not convertible to integer.")
 
     #print("Original:", s)
-    var zeros = SIMD[DType.uint8, simd_width](48)
+    alias zeros = SIMD[DType.uint8, simd_width](48)
     var ptr = rebind[DTypePointer[DType.uint8]](s._as_ptr())
+    
     var adjusted_value = ptr.load[width=simd_width](0) - zeros
     #print("Adjusted value", adjusted_value)
     var chunk16 = _combine_chunks[DType.uint16](adjusted_value)
