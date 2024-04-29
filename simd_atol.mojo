@@ -83,6 +83,7 @@ fn _combine_chunks[new_dtype: DType, old_dtype: DType, old_len: Int](value: SIMD
         #print("4 size, left shifted", left_shifted)
         return bitcast[new_dtype, old_len // 2](left_shifted + right_multiplied)
     elif old_len == 2:
+        #print("2 size", value)
         return (value[0] * 100000000 + value[1]).cast[new_dtype]()
     else:
         raise Error("Unsupported length")
