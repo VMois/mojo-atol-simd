@@ -1,0 +1,12 @@
+---------------------
+Benchmark Report (s)
+---------------------
+Mean: 0.46768599999999994
+Total: 2.3384299999999998
+Iters: 5
+Warmup Mean: 0.479883
+Warmup Total: 0.95976600000000001
+Warmup Iters: 2
+Fastest Mean: 1.7976931348623157e+308
+Slowest Mean: 0.46768599999999999
+
