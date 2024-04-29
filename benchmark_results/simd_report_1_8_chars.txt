@@ -1,0 +1,13 @@
+Finished loading numbers. Loaded 1000000
+---------------------
+Benchmark Report (s)
+---------------------
+Mean: 0.36232500000000001
+Total: 2.17395
+Iters: 6
+Warmup Mean: 0.371201
+Warmup Total: 0.74240200000000001
+Warmup Iters: 2
+Fastest Mean: 1.7976931348623157e+308
+Slowest Mean: 0.36232500000000001
+
