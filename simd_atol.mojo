@@ -6,6 +6,7 @@ alias char = Int8
 alias simd_width = simdwidthof[char]()
 
 
+#@always_inline
 fn _is_uint(s: String) raises -> Bool:
     """
     Check if string up to 16 characters is an unsigned int.
