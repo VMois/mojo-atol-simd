@@ -1,12 +1,10 @@
-from utils.loop import unroll
-from sys import strided_load
-from memory.unsafe import bitcast
+from memory import bitcast
 
 alias char = Int8
 alias simd_width = simdwidthof[char]()
 
 
-#@always_inline
+@always_inline
 fn _is_uint(s: String) raises -> Bool:
     """
     Check if string up to 16 characters is an unsigned int.
@@ -14,26 +12,23 @@ fn _is_uint(s: String) raises -> Bool:
     if len(s) == 0 or len(s) > 16:
         raise Error("Support only strings with 1 to 16 chars")
         
-    var ptr = rebind[DTypePointer[DType.uint8]](s._buffer.data)
-    alias lower_boundry = SIMD[DType.uint8, simd_width](47)
+    var ptr = s.unsafe_ptr()
+    alias lower_boundry = SIMD[DType.uint8, simd_width](48)
     alias upper_boundry = SIMD[DType.uint8, simd_width](57)
-    var is_int = True
-
+    alias zeros = SIMD[DType.uint8, simd_width](0)
+    
     @parameter
-    fn compare_smaller[i: Int]():
+    for i in range(simd_width):
         if simd_width - len(s) == i:
-            var adjusted_input = ptr.load[width=simd_width](0).shift_right[i]()
-            #print(upper_boundry - adjusted_input)
-            #print(lower_boundry - adjusted_input) 
-            var max_char = (upper_boundry - adjusted_input).reduce_max[1]()
-            var min_char = (lower_boundry - adjusted_input).reduce_min[1]()
-            #print(max_char, min_char)
-            if max_char > 57 or min_char < 47:
-                is_int = False
+            var value = SIMD[size=simd_width].load(ptr, 0).shift_right[i]()
+            var z = value != zeros
+            var up = (value > upper_boundry) & z
+            var down = (value < lower_boundry) & z
 
+            if up.reduce_or() or down.reduce_or():
+                return False
 
-    unroll[compare_smaller, simd_width]()
-    return is_int 
+    return True 
 
 
 @always_inline
@@ -103,9 +98,9 @@ fn atol[validation: Bool = True](s: String) raises -> Int:
 
     #print("Original:", s)
     alias zeros = SIMD[DType.uint8, simd_width](48)
-    var ptr = rebind[DTypePointer[DType.uint8]](s._as_ptr())
+    var ptr = s.unsafe_ptr()
     
-    var adjusted_value = ptr.load[width=simd_width](0) - zeros
+    var adjusted_value = SIMD[size=simd_width].load(ptr, 0) - zeros
     #print("Adjusted value", adjusted_value)
     var chunk16 = _combine_chunks[DType.uint16](adjusted_value)
     #print(chunk16)
@@ -119,13 +114,5 @@ fn atol[validation: Bool = True](s: String) raises -> Int:
     var chunk32_3 = _combine_chunks[DType.uint64](chunk32_2)
     #print(chunk32_3)
 
-    return chunk32_3.to_int() // (10 ** (simd_width - len(s)))
-
-
-fn main() raises:
-    var s1: String = "5852010871235579"
-    var s2: String = "-1257"
-    var s3: String = "9.03"
-
-    print(atol(s1))
+    return int(chunk32_3) // (10 ** (simd_width - len(s)))
 
