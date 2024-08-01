@@ -4,6 +4,7 @@ from simd_atol import atol, _is_uint
 
 fn test_is_int() raises:
     assert_equal(True, _is_uint("375"), "375 should be a valid uint.")
+    assert_equal(True, _is_uint("37545620"), "33754562 should be a valid uint.")
     assert_equal(True, _is_uint("001"), "001 should be a valid uint.")
     assert_equal(False, _is_uint(String("9.03")), "9.03 is not a valid uint.")
     assert_equal(False, _is_uint("/102"), "/102 is not a valid uint.")
