@@ -6,29 +6,32 @@ alias simd_width = simdwidthof[char]()
 
 @always_inline
 fn _is_uint(s: String) raises -> Bool:
-    """
-    Check if string up to 16 characters is an unsigned int.
-    """
-    if len(s) == 0 or len(s) > 16:
-        raise Error("Support only strings with 1 to 16 chars")
-        
+    if len(s) == 0:
+        return False
+
     var ptr = s.unsafe_ptr()
-    alias lower_boundry = SIMD[DType.uint8, simd_width](48)
-    alias upper_boundry = SIMD[DType.uint8, simd_width](57)
-    alias zeros = SIMD[DType.uint8, simd_width](0)
-    
+
+    # SIMD is taken from https://arxiv.org/pdf/1902.08318 and modified to support variable length
+    alias mask = SIMD[DType.uint8, simd_width](0xF0)
+    alias boundary_value = SIMD[DType.uint8, simd_width](0x06)
+    alias check_value = SIMD[DType.uint8, simd_width](0x33)
+    var value = SIMD[size=simd_width].load(ptr, 0)
+
     @parameter
     for i in range(simd_width):
         if simd_width - len(s) == i:
-            var value = SIMD[size=simd_width].load(ptr, 0).shift_right[i]()
-            var z = value != zeros
-            var up = (value > upper_boundry) & z
-            var down = (value < lower_boundry) & z
-
-            if up.reduce_or() or down.reduce_or():
-                return False
-
-    return True 
+            var step_1 = value & mask
+            var step_2 = value + boundary_value
+            var step_3 = step_2 & mask
+            var step_4 = step_3 >> 4
+            var step_5 = step_4 | step_1
+            var step_6 = check_value.shift_right[i]()
+            var step_7 = step_5.shift_right[i]()
+            var step_8 = step_7 == step_6
+            return step_8.reduce_and()
+    
+    # should never reach here in theory
+    return True
 
 
 @always_inline
